@@ -1,0 +1,19 @@
+{
+    "extends": "./tsconfig.backend.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "*": [
+                "node_modules/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*",
+        "index.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "build"
+    ]
+}
