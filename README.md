@@ -5,16 +5,14 @@
 ## Установка
 
 ```bash
-npm install telegram-oauth2
-# или
-yarn add telegram-oauth2
+npm install @exact-team/telegram-oauth2
 ```
 
 ## Подготовка
 
 1. Создайте бота через [@BotFather](https://t.me/BotFather) в Telegram
 2. Получите токен бота
-3. Сгенерируйте командой:
+3. Сгенерируйте публичный ключ командой:
 
 ```bash
 openssl rand -hex 64
@@ -39,7 +37,7 @@ const telegramAuth = new TelegramOAuth2({
 const botId = 'YOUR_BOT_ID';
 const scope = 'basic';
 const publicKey = 'YOUR_PUBLIC_KEY';
-const nonce = 'UNIQUE_RANDOM_STRING';
+const nonce = 'UNIQUE_RANDOM_STRING'; // example new Date().getTime().toString()
 
 const authUrl = `https://oauth.telegram.org/auth?bot_id=${botId}&scope=${scope}&public_key=${publicKey}&nonce=${nonce}`;
 // Перенаправьте пользователя на authUrl
