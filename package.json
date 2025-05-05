@@ -1,6 +1,6 @@
 {
   "name": "@exact-team/telegram-oauth2",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "telegram oauth2",
   "scripts": {
     "test": "ts-node test.ts",

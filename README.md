@@ -1,6 +1,6 @@
-# Telegram OAuth2
+# Telegram OAuth2 для TypeScript/JavaScript
 
-Библиотека для авторизации через Telegram OAuth2 на TypeScript/JavaScript.
+Библиотека для упрощённой авторизации пользователей через Telegram OAuth2 и TMA(telegram mini apps).
 
 ## Установка
 
@@ -10,15 +10,132 @@ npm install @exact-team/telegram-oauth2
 
 ## Подготовка
 
-1. Создайте бота через [@BotFather](https://t.me/BotFather) в Telegram
-2. Получите токен бота
-3. Сгенерируйте публичный ключ командой:
+1. Создайте бота через [@BotFather](https://t.me/BotFather) и получите токен.
+2. Привяжите свой домен командой `/setdomain` внутри @BotFather.
+3. Извлеките `botId` — это часть токена до символа `:`, например в `1234567890:ABC...` бот id будет `1234567890`.
+4. Сохраните `botId` для использования на frontend.
 
-```bash
-openssl rand -hex 64
+---
+
+## Frontend
+
+### Подключение Telegram Widget
+
+Добавьте скрипт в `<body>` вашего HTML:
+
+```html
+<body>
+  <script async src="https://telegram.org/js/telegram-widget.js"></script>
+</body>
 ```
 
-## Использование
+### Описание глобальных типов (telegram.d.ts)
+
+Создайте файл `telegram.d.ts` рядом с `tsconfig.json`:
+
+Давайте разберём подробнее, почему мы используем именно этот подход к авторизации:
+
+### 🔹 Авторизация через Telegram Login Widget
+
+#### Преимущества:
+
+- **Гибкость интеграции**: Авторизацию можно инициировать в любом месте приложения в удобный момент
+- **Отсутствие iframe**: Решение работает без использования iframe, что улучшает производительность
+- **Официальная поддержка**: Метод официально поддерживается Telegram!
+- **Удобная обработка данных**: Полученные данные пользователя можно сразу отправить на backend для дальнейшей обработки
+- **Кастомизация UI**: Полный контроль над внешним видом кнопки авторизации, что большой плюс для UI!
+
+#### Ограничения:
+
+- **Необходимость проверки подписи**: Требуется дополнительная проверка hash на backend (уже реализовано в библиотеке)
+- **Ограниченный контроль**: Popup-окно авторизации управляется Telegram и не может быть кастомизировано, но нам это и не надо
+
+```typescript
+declare global {
+  interface ITelegramOptions {
+    bot_id: string;
+    request_access?: boolean;
+    lang?: string;
+  }
+
+  interface ITelegramData {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    username?: string;
+    auth_date: number;
+    hash: string;
+    [key: string]: string | number;
+  }
+
+  type ITelegramCallback = (dataOrFalse: ITelegramData | false) => void;
+
+  interface Window {
+    Telegram: {
+      Login: {
+        auth(options: ITelegramOptions, callback: ITelegramCallback): void;
+      };
+    };
+  }
+}
+
+export {};
+```
+
+И добавьте `telegram.d.ts` в секцию `include` вашего `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    // ...
+  },
+  "include": [
+    "telegram.d.ts"
+    // другие файлы
+  ]
+}
+```
+
+### Пример на React (TypeScript)
+
+```typescript
+import React from 'react';
+import { Button } from '@shared/components/ui/button';
+
+const botId = process.env.REACT_APP_TELEGRAM_BOT_ID!;
+
+type ITelegramData = Window['Telegram']['Login'] extends {
+  auth(options: infer O, callback: infer C): void;
+}
+  ? Parameters<C>[0]
+  : never;
+
+export function LoginPage() {
+  const handleCallback = (data: ITelegramData | false) => {
+    if (!data) return;
+    // Отправьте данные на backend для проверки и генерации JWT
+    fetch('/api/auth/telegram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  };
+
+  const handleLogin = () => {
+    window.Telegram.Login.auth({ bot_id: botId, request_access: true }, handleCallback);
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Button onClick={handleLogin}>Войти через Telegram</Button>
+    </div>
+  );
+}
+```
+
+---
+
+## Backend
 
 ### Инициализация
 
@@ -26,56 +143,49 @@ openssl rand -hex 64
 import { TelegramOAuth2 } from 'telegram-oauth2';
 
 const telegramAuth = new TelegramOAuth2({
-  botToken: 'YOUR_BOT_TOKEN',
-  publicKey: 'YOUR_PUBLIC_KEY',
+  botToken: process.env.TELEGRAM_BOT_TOKEN!,
 });
 ```
 
-### Перенаправление пользователя на страницу авторизации Telegram
+### Обработка callback
+
+В вашем роуте (например, Express или любая другая фреймворк):
 
 ```typescript
-const botId = 'YOUR_BOT_ID';
-const scope = 'basic';
-const publicKey = 'YOUR_PUBLIC_KEY';
-const nonce = 'UNIQUE_RANDOM_STRING'; // example new Date().getTime().toString()
+import express, { Request, Response } from 'express';
 
-const authUrl = `https://oauth.telegram.org/auth?bot_id=${botId}&scope=${scope}&public_key=${publicKey}&nonce=${nonce}`;
-// Перенаправьте пользователя на authUrl
-```
+const app = express();
+app.use(express.json());
 
-### Обработка callback от Telegram
+app.post('/api/auth/telegram', (req: Request, res: Response) => {
+  const result = telegramAuth.handleTelegramOAuthCallback(req.body);
 
-```typescript
-const result = telegramAuth.handleTelegramOAuthCallback(callbackUrl);
+  if (!result.isSuccess || !result.data) {
+    return res.status(400).json({ error: result.message || 'Неправильная подпись данных' });
+  }
 
-if (result.isSuccess) {
   const user = result.data;
-  // user содержит информацию о пользователе:
-  // - id: number
-  // - first_name: string
-  // - last_name?: string
-  // - username?: string
-  // - photo_url?: string
-  // - auth_date: number
-} else {
-  console.error(result.message);
-}
+  // Найдите или создайте пользователя в БД и сгенерируйте JWT
+
+  res.json({ user });
+});
+
+app.listen(3000, () => {
+  console.log('Server started on http://localhost:3000');
+});
 ```
+
+---
 
 ## Интерфейсы
 
-### ICfgConstructor
-
 ```typescript
+// Параметры конструктора TelegramOAuth2
 interface ICfgConstructor {
   botToken: string;
-  publicKey: string;
 }
-```
 
-### IUserTelegram
-
-```typescript
+// Данные пользователя из Telegram
 interface IUserTelegram {
   id: number;
   first_name: string;
@@ -84,11 +194,8 @@ interface IUserTelegram {
   photo_url?: string;
   auth_date: number;
 }
-```
 
-### ICommandResponse
-
-```typescript
+// Ответ команды библиотеки
 interface ICommandResponse<T> {
   isSuccess: boolean;
   message?: string;
@@ -96,39 +203,16 @@ interface ICommandResponse<T> {
 }
 ```
 
+---
+
 ## Обработка ошибок
 
-Библиотека может возвращать следующие ошибки:
+Библиотека может возвращать следующие типы ошибок:
 
-- `MISSING_REQUIRED_PARAMETERS` - отсутствуют обязательные параметры в URL
-- `INVALID_HASH` - неверная подпись данных
+- `INVALID_HASH` — некорректная подпись данных, возможная попытка взлома.
 
-## Пример использования с Express
-
-```typescript
-import express from 'express';
-import { TelegramOAuth2 } from 'telegram-oauth2';
-
-const app = express();
-const telegramAuth = new TelegramOAuth2({
-  botToken: 'YOUR_BOT_TOKEN',
-  publicKey: 'YOUR_PUBLIC_KEY',
-});
-
-app.get('/auth/telegram/callback', (req, res) => {
-  const result = telegramAuth.handleTelegramOAuthCallback(req.url);
-
-  if (result.isSuccess) {
-    // Сохраните информацию о пользователе
-    res.json(result.data);
-  } else {
-    res.status(400).json({ error: result.message });
-  }
-});
-
-app.listen(3000);
-```
+---
 
 ## Лицензия
 
-ISC
+Этот проект распространяется под лицензией ISC.")}
