@@ -102,13 +102,7 @@ export {};
 import React from 'react';
 import { Button } from '@shared/components/ui/button';
 
-const botId = process.env.REACT_APP_TELEGRAM_BOT_ID!;
-
-type ITelegramData = Window['Telegram']['Login'] extends {
-  auth(options: infer O, callback: infer C): void;
-}
-  ? Parameters<C>[0]
-  : never;
+const botId = process.env.REACT_APP_TELEGRAM_BOT_ID!; // Ваш botID !!!!!
 
 export function LoginPage() {
   const handleCallback = (data: ITelegramData | false) => {
