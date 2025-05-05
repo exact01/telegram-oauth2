@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { ERRORS } from './constants/errors.constan';
+import { ERRORS } from './constants/errors.constans';
 import { ICfgConstructor } from './interfaces/cfg-constructor.interface';
 import { ICommandResponse } from './interfaces/command-response.interface';
 import { ITelegramData } from './interfaces/data-telegram.interface';

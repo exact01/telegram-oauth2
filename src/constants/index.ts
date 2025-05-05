@@ -1,1 +1,1 @@
-export * from './errors.constan';
+export * from './errors.constans';

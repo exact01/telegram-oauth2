@@ -1,9 +1,8 @@
 {
   "name": "@exact-team/telegram-oauth2",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "telegram oauth2",
   "scripts": {
-    "test": "ts-node test.ts",
     "clean": "rm -rf build",
     "build:backend": "tsc -p tsconfig.backend.json",
     "build:frontend": "tsc -p tsconfig.frontend.json",
@@ -13,9 +12,6 @@
   "keywords": [],
   "author": "exact01",
   "license": "ISC",
-  "dependencies": {
-    "zod": "3.24.4"
-  },
   "devDependencies": {
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
