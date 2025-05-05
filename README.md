@@ -1,6 +1,6 @@
 # Telegram OAuth2 для TypeScript/JavaScript
 
-Библиотека для упрощённой авторизации пользователей через Telegram OAuth2 и TMA(telegram mini apps).
+Библиотека для упрощённой авторизации пользователей через Telegram OAuth2 и TMA(telegram mini apps). Для TMA большенство веще делать не надо.
 
 ## Установка
 
