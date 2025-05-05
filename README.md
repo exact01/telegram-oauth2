@@ -65,7 +65,6 @@ declare global {
     username?: string;
     auth_date: number;
     hash: string;
-    [key: string]: string | number;
   }
 
   type ITelegramCallback = (dataOrFalse: ITelegramData | false) => void;
@@ -137,7 +136,8 @@ export function LoginPage() {
 import { TelegramOAuth2 } from 'telegram-oauth2';
 
 const telegramAuth = new TelegramOAuth2({
-  botToken: process.env.TELEGRAM_BOT_TOKEN!,
+  botToken: process.env.TELEGRAM_BOT_TOKEN!, // Токен бота
+  validUntil: 2000, // (опционально) сколько секунд тело запроса считается валидным
 });
 ```
 
@@ -155,7 +155,9 @@ app.post('/api/auth/telegram', (req: Request, res: Response) => {
   const result = telegramAuth.handleTelegramOAuthCallback(req.body);
 
   if (!result.isSuccess || !result.data) {
-    return res.status(400).json({ error: result.message || 'Неправильная подпись данных' });
+    return res
+      .status(400)
+      .json({ error: result.message || 'Неправильная подпись данных или auth_date истёк' });
   }
 
   const user = result.data;
@@ -204,6 +206,7 @@ interface ICommandResponse<T> {
 Библиотека может возвращать следующие типы ошибок:
 
 - `INVALID_HASH` — некорректная подпись данных, возможная попытка взлома.
+- `EXPIRED_HASH` — Время auth_date истекло.
 
 ---
 

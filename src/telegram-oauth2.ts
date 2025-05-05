@@ -6,13 +6,25 @@ import { ITelegramData } from './interfaces/data-telegram.interface';
 
 export class TelegramOAuth2 {
     private readonly botToken: string;
+    private readonly validUntil: number | undefined;
 
     constructor(cfg: ICfgConstructor) {
         this.botToken = cfg.botToken;
+        this.validUntil = cfg.validUntil;
     }
 
     public handleTelegramOAuthCallback(body: ITelegramData): ICommandResponse<ITelegramData> {
         const { hash, ...dataToCheck } = body;
+
+        const currentTimeSec = Math.floor(Date.now() / 1000);
+
+        if (this.validUntil && dataToCheck.auth_date + this.validUntil < currentTimeSec) {
+            return {
+                isSuccess: false,
+                message: ERRORS.EXPIRED_HASH,
+            };
+        }
+
         const dataCheckString = Object.keys(dataToCheck)
             .sort()
             .map((key) => `${key}=${(dataToCheck as Record<string, string | number>)[key]}`)
