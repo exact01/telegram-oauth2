@@ -143,7 +143,7 @@ const telegramAuth = new TelegramOAuth2({
 
 ### Обработка callback
 
-В вашем роуте (например, Express или любая другая фреймворк):
+В вашем роуте (например, Express или любом другом фреймворке):
 
 ```typescript
 import express, { Request, Response } from 'express';
