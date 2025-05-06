@@ -1,6 +1,6 @@
 {
   "name": "@exact-team/telegram-oauth2",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "telegram oauth2",
   "scripts": {
     "test": "jest",
