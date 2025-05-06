@@ -47,7 +47,7 @@ export class TelegramOAuth2 {
         };
     }
 
-    public getBotId(): number | null {
+    public getBotId(): number {
         const botId = this.botToken.split(':')[0];
         return Number(botId);
     }
