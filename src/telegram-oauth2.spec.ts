@@ -30,6 +30,13 @@ describe('TelegramOAuth2', () => {
         jest.useRealTimers();
     });
 
+    describe('getBotId', () => {
+        it('должен корректно извлекать ID бота из токена', () => {
+            const botId = telegramOAuth.getBotId();
+            expect(botId).toBe(7737759018);
+        });
+    });
+
     describe('handleTelegramOAuthCallback', () => {
         it('должен успешно валидировать корректные данные', () => {
             const result = telegramOAuth.handleTelegramOAuthCallback(validData);
