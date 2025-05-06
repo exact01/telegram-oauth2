@@ -21,6 +21,7 @@ describe('TelegramOAuth2', () => {
             hash: 'af6ac3dd6e3278624f380fc5bc993aec54b0ab4a36e8a90d1477b942f2619b76',
         };
         // Подменяем системное время на ровно auth_date
+        jest.useFakeTimers();
         jest.setSystemTime(validData.auth_date * 1000);
     });
 
