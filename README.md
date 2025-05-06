@@ -11,7 +11,7 @@
 ![Build Status](https://img.shields.io/github/actions/workflow/status/exact01/freekassa-sdk-nestjs/.github/workflows/deploy-lib.yml)
 ![Downloads](https://img.shields.io/npm/dt/@exact-team/telegram-oauth2)
 ![License](https://img.shields.io/npm/l/@exact-team/telegram-oauth2)
-![NPM Last Update](https://img.shields.io/npm/last-update/%40exact-team%2telegram-oauth2)
+![NPM Last Update](https://img.shields.io/npm/last-update/%40exact-team%2Ftelegram-oauth2)
 
 ![Known Vulnerabilities](https://snyk.io/test/github/exact01/telegram-oauth2/badge.svg)
 ![Coverage Status](https://img.shields.io/codecov/c/github/exact01/telegram-oauth2)
