@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import { createHash, createHmac } from 'node:crypto';
 import { ERRORS } from './constants/errors.constans';
 import { ICfgConstructor } from './interfaces/cfg-constructor.interface';
 import { ICommandResponse } from './interfaces/command-response.interface';
@@ -30,12 +30,9 @@ export class TelegramOAuth2 {
             .map((key) => `${key}=${(dataToCheck as Record<string, string | number>)[key]}`)
             .join('\n');
 
-        const secretKey = crypto.createHash('sha256').update(this.botToken).digest();
+        const secretKey = createHash('sha256').update(this.botToken).digest();
 
-        const checkHash = crypto
-            .createHmac('sha256', secretKey)
-            .update(dataCheckString)
-            .digest('hex');
+        const checkHash = createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
 
         if (hash !== checkHash) {
             return {
