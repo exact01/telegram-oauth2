@@ -6,7 +6,7 @@
 /build
 .idea
 /pgdata
-/reports
+
 /redis_vpn_bot_data
 /pgdata
 /libs/contract/build
