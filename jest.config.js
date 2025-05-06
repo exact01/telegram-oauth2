@@ -25,6 +25,7 @@ module.exports = {
         },
     },
     verbose: true,
+    silent: true,
     testLocationInResults: true,
     reporters: [
         'default',
