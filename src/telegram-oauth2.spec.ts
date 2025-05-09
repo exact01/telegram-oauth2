@@ -15,6 +15,7 @@ describe('TelegramOAuth2', () => {
             id: 6734228260,
             first_name: 'Ivan',
             username: 'reacty',
+            last_name: undefined,
             photo_url:
                 'https://t.me/i/userpic/320/ywDhRGPP2zRKa4S8OnyX0rfwYU7ycTQpRiSKkQ1wr1JMVcd_A_2rlsFba9d8vnvt.jpg',
             auth_date: 1746529672,

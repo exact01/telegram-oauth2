@@ -25,9 +25,10 @@ export class TelegramOAuth2 {
             };
         }
 
-        const dataCheckString = Object.keys(dataToCheck)
-            .sort()
-            .map((key) => `${key}=${(dataToCheck as Record<string, string | number>)[key]}`)
+        const dataCheckString = Object.entries(dataToCheck)
+            .filter(([, value]) => value !== undefined)
+            .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+            .map(([key, value]) => `${key}=${value}`)
             .join('\n');
 
         const secretKey = createHash('sha256').update(this.botToken).digest();
@@ -48,6 +49,7 @@ export class TelegramOAuth2 {
     }
 
     public getBotId(): number {
-        return Number(this.botToken.split(':')[0]);
+        const botId = this.botToken.split(':')[0];
+        return Number(botId);
     }
 }
